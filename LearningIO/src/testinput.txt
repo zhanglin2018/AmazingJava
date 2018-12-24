@@ -1,0 +1,712 @@
+protocol PAFunctionMixed_JTAG_32 {
+
+    enum writeAddress{
+        address1 = 0xdeadbeaf,
+        address2 = 0xbeafdead
+    };
+
+    //<!-- Constants -->
+    //  <!-- General Constants -->
+    val UnsignedLong AddressLength = 32;
+    val UnsignedLong DefaultDataLength = 32;
+
+    //  <!-- Constants for transaction 'nop' -->
+    val UnsignedLong NopTALength = 64;
+
+    //  <!-- Constants for transaction 'read' -->
+    val UnsignedLong ReadTDOSetupLength = 11+AddressLength+12;
+    val UnsignedLong ReadTDOResetLength = 8;
+    val UnsignedLong ReadTALength = ReadTDOSetupLength+ReadTDOResetLength;
+
+    //  <!-- Constants for transaction 'reset' -->
+    val UnsignedLong  ResetPinLowLength = 10;
+    val UnsignedLong  ResetPinHighLength =  10;
+    val UnsignedLong  ResetTALength = ResetPinLowLength+ResetPinHighLength;
+
+    //  <!-- Constants for transaction 'write' -->
+    val UnsignedLong  WriteTDISetupLength = 11+AddressLength+12;
+    val UnsignedLong  WriteTDIResetLength = 4+4;
+    val UnsignedLong  WriteTALength = WriteTDISetupLength+WriteTDIResetLength;
+
+    //<!-- State mapping -->
+    mapping = drv[state0="0", state1="1"], rcv[state0="L", state1="H", capture="C", ignore="X"];
+
+    //  <!-- Signal roles -->
+
+    signalRole TCK {
+        //differential = false;
+        idleSequence = "T";
+    }
+
+    signalRole TDI {
+        //differential = false;
+        idleSequence = "0";
+    }
+
+    signalRole TDO {
+        //differential = false;
+        idleSequence = "X";
+    }
+
+    signalRole TMS {
+        //differential = false;
+        idleSequence = "0";
+    }
+
+    signalRole TRST {
+        //differential = false;
+        idleSequence = "1";
+    }
+
+// -----------------------------------------------------------------------------------------------------
+//  <!-- -->
+//  <!-- Transaction nop -->
+    transaction nop()
+    {
+
+      define TCK
+      {
+        field drive Clk;
+        Clk = repeat("T", NopTALength);
+      }
+
+      define TDI
+      {
+        field drive Idle;
+        Idle = repeat(<0b0>, NopTALength);
+      }
+
+      define TDO
+      {
+        field receive Idle_TDO;
+        Idle_TDO = repeat("X", NopTALength);
+      }
+
+      define TMS
+      {
+        field drive Idle;
+        Idle = repeat(<0b0>, NopTALength);
+      }
+
+      define TRST
+      {
+        field drive Idle;
+        Idle = repeat(<0b1>, NopTALength);
+      }
+
+    }
+
+// -----------------------------------------------------------------------------------------------------
+//  <!-- -->
+//  <!-- Transaction reset -->
+    transaction reset()
+    {
+      //    <!-- No parameters in this transaction -->
+      //    <!-- No mask declarations in this transaction -->
+
+      define TCK
+      {
+        field drive Clk;
+        Clk = repeat("T", ResetTALength);
+      }
+
+      define TDI
+      {
+        field drive Idle;
+        Idle = repeat(<0b0>, ResetTALength);
+      }
+
+      define TDO
+      {
+        field receive Idle_TDO;
+        Idle_TDO = repeat("X", ResetTALength);
+      }
+
+      define TMS
+      {
+        field drive Idle;
+        Idle = repeat(<0b0>, ResetTALength);
+      }
+      define TRST
+      {
+        field drive Reset;
+        Reset = repeat(<0b0>, ResetPinLowLength)+repeat(<0b1>, ResetPinHighLength);
+      }
+    }
+
+// -----------------------------------------------------------------------------------------------------
+//  <!-- -->
+//  <!-- Transaction read -->
+
+    transaction read(UnsignedLong IN Address, BitSequence INOUT Data, UnsignedLong IN DataLength)
+    masks(UnsignedLong maskLower16Bit, UnsignedLong maskUpper16Bit)
+    {
+
+      define TCK
+      {
+        field drive Clk ;
+        Clk = repeat("T", ReadTALength+DataLength);
+      }
+
+      define TDI
+      {
+        field drive Reset;
+        Reset = repeat(<0b0>, 6);
+
+        field drive Shift_IR;
+        Shift_IR = repeat(<0b0>, 5);
+
+        field drive IR_Scan;
+        IR_Scan = Address[AddressLength-1..0];
+
+        field drive Exit_IR;
+        Exit_IR =  repeat(<0b0>, 4);
+
+        field drive Idle;
+        Idle =  repeat(<0b0>, 8+DataLength+8);
+
+      }
+
+      define TDO
+      {
+        field receive Idle_TDO;
+        Idle_TDO =  repeat("X", ReadTDOSetupLength);
+
+        field receive Shift_DR_TDO;
+        @Properties(mask=maskLower16Bit[0..15] + maskUpper16Bit[16..31])
+        @Properties(captureMode=isOut(Data))
+
+        /*
+           To test if the isOUT() functions properly for all cases we put the following expression
+           isOut(Data) ? Data[0..DataLength-1] : Data[0..DataLength-1];
+
+           related to CR-103939
+        */
+
+//        Shift_DR_TDO =  isOut(Data) ? Data[0..DataLength-1] : Data[0..DataLength-1];
+          Shift_DR_TDO =  Data[0..DataLength-1];
+
+        field receive Reset_TDO;
+        Reset_TDO =  repeat("X", ReadTDOResetLength);
+      }
+
+      define TMS
+      {
+        field drive Reset;
+        Reset = repeat(<0b0>, 6);
+
+        field drive Shift_IR;
+        Shift_IR =  <0b01100>;
+
+        field drive IR_Scan;
+        IR_Scan = repeat(<0b0>, AddressLength-1)+<0b1>;
+
+        field drive Exit_IR;
+        Exit_IR =  <0b1000>;
+
+        field drive Idle1;
+        Idle1 = repeat(<0b0>, 5);
+
+        field drive Shift_DR;
+        Shift_DR =  <0b100>;
+
+        field drive DR_Scan;
+        DR_Scan = repeat(<0b0>, DataLength-1)+<0b1>;
+
+        field drive Exit_DR;
+        Exit_DR =<0b1000>;
+
+        field drive Idle2;
+        Idle2 =<0b1111>;
+      }
+
+      define TRST
+      {
+        field drive Idle;
+        Idle = repeat(<0b1>, ReadTALength+DataLength);
+      }
+
+      Data = TDO.Shift_DR_TDO[0..DataLength-1];
+    }
+
+
+   transaction read_maskAll (UnsignedLong IN Address, BitSequence INOUT Data, UnsignedLong IN DataLength)
+    masks(UnsignedLong maskAll)
+    {
+
+      define TCK
+      {
+        field drive Clk ;
+        Clk = repeat("T", ReadTALength+DataLength);
+      }
+
+      define TDI
+      {
+        field drive Reset;
+        Reset = repeat(<0b0>, 6);
+
+        field drive Shift_IR;
+        Shift_IR = repeat(<0b0>, 5);
+
+        field drive IR_Scan;
+        IR_Scan = Address[AddressLength-1..0];
+
+        field drive Exit_IR;
+        Exit_IR =  repeat(<0b0>, 4);
+
+        field drive Idle;
+        Idle =  repeat(<0b0>, 8+DataLength+8);
+
+      }
+
+      define TDO
+      {
+        field receive Idle_TDO;
+        Idle_TDO =  repeat("X", ReadTDOSetupLength);
+
+        field receive Shift_DR_TDO;
+        @Properties(mask=maskAll[0..31])
+        @Properties(captureMode=isOut(Data))
+
+        /*
+           To test if the isOUT() functions properly for all cases we put the following expression
+           isOut(Data) ? Data[0..DataLength-1] : Data[0..DataLength-1];
+
+           related to CR-103939
+        */
+
+        Shift_DR_TDO =  isOut(Data) ? Data[0..DataLength-1] : Data[0..DataLength-1];
+
+        field receive Reset_TDO;
+        Reset_TDO =  repeat("X", ReadTDOResetLength);
+      }
+
+      define TMS
+      {
+        field drive Reset;
+        Reset = repeat(<0b0>, 6);
+
+        field drive Shift_IR;
+        Shift_IR =  <0b01100>;
+
+        field drive IR_Scan;
+        IR_Scan = repeat(<0b0>, AddressLength-1)+<0b1>;
+
+        field drive Exit_IR;
+        Exit_IR =  <0b1000>;
+
+        field drive Idle1;
+        Idle1 = repeat(<0b0>, 5);
+
+        field drive Shift_DR;
+        Shift_DR =  <0b100>;
+
+        field drive DR_Scan;
+        DR_Scan = repeat(<0b0>, DataLength-1)+<0b1>;
+
+        field drive Exit_DR;
+        Exit_DR =<0b1000>;
+
+        field drive Idle2;
+        Idle2 =<0b1111>;
+      }
+
+      define TRST
+      {
+        field drive Idle;
+        Idle = repeat(<0b1>, ReadTALength+DataLength);
+      }
+
+      Data = TDO.Shift_DR_TDO[0..DataLength-1];
+    }
+
+
+    transaction read_OUT (UnsignedLong IN Address, BitSequence OUT Data, UnsignedLong IN DataLength)
+    masks(UnsignedLong maskLower16Bit, UnsignedLong maskUpper16Bit)
+    {
+
+      define TCK
+      {
+        field drive Clk ;
+        Clk = repeat("T", ReadTALength+DataLength);
+      }
+
+      define TDI
+      {
+        field drive Reset;
+        Reset = repeat(<0b0>, 6);
+
+        field drive Shift_IR;
+        Shift_IR = repeat(<0b0>, 5);
+
+        field drive IR_Scan;
+        IR_Scan = Address[AddressLength-1..0];
+
+        field drive Exit_IR;
+        Exit_IR =  repeat(<0b0>, 4);
+
+        field drive Idle;
+        Idle =  repeat(<0b0>, 8+DataLength+8);
+
+      }
+
+      define TDO
+      {
+        field receive Idle_TDO;
+        Idle_TDO =  repeat("X", ReadTDOSetupLength);
+
+        field receive Shift_DR_TDO;
+        @Properties(mask=maskLower16Bit[0..15] + maskUpper16Bit[16..31])
+        @Properties(captureMode=isOut(Data))
+
+        /*
+           To test if the isOUT() functions properly for all cases we put the following expression
+           isOut(Data) ? Data[0..DataLength-1] : Data[0..DataLength-1];
+
+           related to CR-103939
+        */
+
+        Shift_DR_TDO =  isOut(Data) ? Data[0..DataLength-1] : Data[0..DataLength-1];
+
+        field receive Reset_TDO;
+        Reset_TDO =  repeat("X", ReadTDOResetLength);
+      }
+
+      define TMS
+      {
+        field drive Reset;
+        Reset = repeat(<0b0>, 6);
+
+        field drive Shift_IR;
+        Shift_IR =  <0b01100>;
+
+        field drive IR_Scan;
+        IR_Scan = repeat(<0b0>, AddressLength-1)+<0b1>;
+
+        field drive Exit_IR;
+        Exit_IR =  <0b1000>;
+
+        field drive Idle1;
+        Idle1 = repeat(<0b0>, 5);
+
+        field drive Shift_DR;
+        Shift_DR =  <0b100>;
+
+        field drive DR_Scan;
+        DR_Scan = repeat(<0b0>, DataLength-1)+<0b1>;
+
+        field drive Exit_DR;
+        Exit_DR =<0b1000>;
+
+        field drive Idle2;
+        Idle2 =<0b1111>;
+      }
+
+      define TRST
+      {
+        field drive Idle;
+        Idle = repeat(<0b1>, ReadTALength+DataLength);
+      }
+
+      Data = TDO.Shift_DR_TDO[0..DataLength-1];
+    }
+
+  transaction read_IN (UnsignedLong IN Address, BitSequence IN Data, UnsignedLong IN DataLength)
+    masks(UnsignedLong maskLower16Bit, UnsignedLong maskUpper16Bit)
+    {
+
+      define TCK
+      {
+        field drive Clk ;
+        Clk = repeat("T", ReadTALength+DataLength);
+      }
+
+      define TDI
+      {
+        field drive Reset;
+        Reset = repeat(<0b0>, 6);
+
+        field drive Shift_IR;
+        Shift_IR = repeat(<0b0>, 5);
+
+        field drive IR_Scan;
+        IR_Scan = Address[AddressLength-1..0];
+
+        field drive Exit_IR;
+        Exit_IR =  repeat(<0b0>, 4);
+
+        field drive Idle;
+        Idle =  repeat(<0b0>, 8+DataLength+8);
+
+      }
+
+      define TDO
+      {
+        field receive Idle_TDO;
+        Idle_TDO =  repeat("X", ReadTDOSetupLength);
+
+        field receive Shift_DR_TDO;
+        @Properties(mask=maskLower16Bit[0..15] + maskUpper16Bit[16..31])
+        @Properties(captureMode=isOut(Data))
+
+        /*
+           To test if the isOUT() functions properly for all cases we put the following expression
+           isOut(Data) ? Data[0..DataLength-1] : Data[0..DataLength-1];
+
+           related to CR-103939
+        */
+
+        Shift_DR_TDO =  isOut(Data) ? Data[0..DataLength-1] : Data[0..DataLength-1];
+
+        field receive Reset_TDO;
+        Reset_TDO =  repeat("X", ReadTDOResetLength);
+      }
+
+      define TMS
+      {
+        field drive Reset;
+        Reset = repeat(<0b0>, 6);
+
+        field drive Shift_IR;
+        Shift_IR =  <0b01100>;
+
+        field drive IR_Scan;
+        IR_Scan = repeat(<0b0>, AddressLength-1)+<0b1>;
+
+        field drive Exit_IR;
+        Exit_IR =  <0b1000>;
+
+        field drive Idle1;
+        Idle1 = repeat(<0b0>, 5);
+
+        field drive Shift_DR;
+        Shift_DR =  <0b100>;
+
+        field drive DR_Scan;
+        DR_Scan = repeat(<0b0>, DataLength-1)+<0b1>;
+
+        field drive Exit_DR;
+        Exit_DR =<0b1000>;
+
+        field drive Idle2;
+        Idle2 =<0b1111>;
+      }
+
+      define TRST
+      {
+        field drive Idle;
+        Idle = repeat(<0b1>, ReadTALength+DataLength);
+      }
+
+    }
+
+
+        // -----------------------------------------------------------------------------------------------------
+//  <!-- -->
+//  <!-- Transaction read_noMask -->
+
+    transaction read_noMask(UnsignedLong IN Address, BitSequence INOUT Data, UnsignedLong IN DataLength)
+    {
+
+      define TCK
+      {
+        field drive Clk ;
+        Clk = repeat("T", ReadTALength+DataLength);
+      }
+
+      define TDI
+      {
+        field drive Reset;
+        Reset = repeat(<0b0>, 6);
+
+        field drive Shift_IR;
+        Shift_IR = repeat(<0b0>, 5);
+
+        field drive IR_Scan;
+        IR_Scan = Address[AddressLength-1..0];
+
+        field drive Exit_IR;
+        Exit_IR =  repeat(<0b0>, 4);
+
+        field drive Idle;
+        Idle =  repeat(<0b0>, 8+DataLength+8);
+
+      }
+
+      define TDO
+      {
+        field receive Idle_TDO;
+        Idle_TDO =  repeat("X", ReadTDOSetupLength);
+
+        field receive Shift_DR_TDO;
+//        @Properties(captureMode=isOut(Data))
+        Shift_DR_TDO =  Data[0..DataLength-1] ;
+
+        field receive Reset_TDO;
+        Reset_TDO =  repeat("X", ReadTDOResetLength);
+      }
+
+      define TMS
+      {
+        field drive Reset;
+        Reset = repeat(<0b0>, 6);
+
+        field drive Shift_IR;
+        Shift_IR =  <0b01100>;
+
+        field drive IR_Scan;
+        IR_Scan = repeat(<0b0>, AddressLength-1)+<0b1>;
+
+        field drive Exit_IR;
+        Exit_IR =  <0b1000>;
+
+        field drive Idle1;
+        Idle1 = repeat(<0b0>, 5);
+
+        field drive Shift_DR;
+        Shift_DR =  <0b100>;
+
+        field drive DR_Scan;
+        DR_Scan = repeat(<0b0>, DataLength-1)+<0b1>;
+
+        field drive Exit_DR;
+        Exit_DR =<0b1000>;
+
+        field drive Idle2;
+        Idle2 =<0b1111>;
+      }
+
+      define TRST
+      {
+        field drive Idle;
+        Idle = repeat(<0b1>, ReadTALength+DataLength);
+      }
+
+      Data = TDO.Shift_DR_TDO[0..DataLength-1];
+    }
+
+// -----------------------------------------------------------------------------------------------------
+//  <!-- -->
+//  <!-- Transaction write -->
+    transaction write(UnsignedLong IN Address, BitSequence IN Data, UnsignedLong IN DataLength)
+    {
+
+      define TCK
+      {
+        field drive Clk;
+        Clk = repeat("T", WriteTALength+DataLength);
+      }
+
+      define TDI
+      {
+        field drive Reset;
+        Reset = repeat(<0b0>, 6);
+
+        field drive Shift_IR;
+        Shift_IR = repeat(<0b0>, 5);
+
+        field drive IR_Scan;
+        IR_Scan = Address[AddressLength-1..0];
+//        IR_Scan = Address[0..AddressLength-1];
+
+        field drive Exit_IR;
+        Exit_IR = repeat(<0b0>, 4);
+
+        field drive Idle1;
+        Idle1 = repeat(<0b0>, 5);
+
+        field drive Shift_DR;
+        Shift_DR = repeat(<0b0>, 3);
+
+        field drive DR_Scan;
+        DR_Scan = Data[0..DataLength-1];
+
+        field drive Exit_DR;
+        Exit_DR = repeat(<0b0>, 4);
+
+        field drive Idle2;
+        Idle2 = repeat(<0b0>, 4);
+      }
+
+      define TDO
+      {
+        field receive Idle_TDO;
+        Idle_TDO = repeat("X", WriteTALength+DataLength);
+      }
+
+      define TMS
+      {
+        field drive Reset;
+        Reset = repeat(<0b1>, 6);
+
+        field drive Shift_IR;
+        Shift_IR =<0b01100>;
+
+        field drive IR_Scan;
+        IR_Scan = repeat(<0b0>, AddressLength-1)+<0b1>;
+
+        field drive Exit_IR;
+        Exit_IR =<0b1000>;
+
+        field drive Idle1;
+        Idle1 = repeat(<0b0>, 5);
+
+        field drive Shift_DR;
+        Shift_DR =  <0b100>;
+
+        field drive DR_Scan;
+        DR_Scan = repeat(<0b0>, DataLength-1)+<0b1>;
+
+        field drive Exit_DR;
+        Exit_DR =<0b1000>;
+
+        field drive Idle2;
+        Idle2 =<0b1111>;
+      }
+
+      define TRST
+      {
+        field drive Idle;
+        Idle = repeat(<0b1>, WriteTALength+DataLength);
+      }
+
+    }
+
+// -----------------------------------------------------------------------------------------------------
+//  <!-- -->
+//  <!-- Transaction nopWithCycleLength -->
+    transaction nopWithCycleLength(UnsignedLong IN CycleLength)
+    {
+
+      define TCK
+      {
+        field drive Clk;
+        Clk = repeat("T", CycleLength);
+      }
+
+      define TDI
+      {
+        field drive Idle;
+        Idle = repeat(<0b0>, CycleLength);
+      }
+
+      define TDO
+      {
+        field receive Idle_TDO;
+        Idle_TDO = repeat("X", CycleLength);
+      }
+
+      define TMS
+      {
+        field drive Idle;
+        Idle = repeat(<0b0>, CycleLength);
+      }
+
+      define TRST
+      {
+        field drive Idle;
+        Idle = repeat(<0b1>, CycleLength);
+      }
+
+    }
+}

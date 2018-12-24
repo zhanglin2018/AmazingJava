@@ -1,0 +1,539 @@
+/**
+ * this protocol should be the equivalent example
+ * to the xml example in the PA8 Integtest, written by Martin Hilliges
+ */
+protocol JTAG32 {
+
+    // user-defined types
+    // <Prot_UserDefinedType name="BoolEnum" expression="{ False = 0; True = 1; }" />
+
+    // constants
+    // general constants
+    val UnsignedLong AddressLength = ${AddressLength};
+
+    // constants for transaction 'nop'
+    val UnsignedLong NopTALength = 64;
+
+    // constants for transaction 'read'
+    val UnsignedLong ReadOutDataLength = ${ReadOutDataLength};
+    val UnsignedLong ReadTDOSetupLength = ${ReadTDOSetupLength};
+    val UnsignedLong ReadTDOResetLength = ${ReadTDOResetLength};
+    val UnsignedLong ReadTALength = ReadTDOSetupLength + ReadOutDataLength + ReadTDOResetLength;
+
+    val UnsignedLong ReadVarTALength = ReadTDOSetupLength + ReadTDOResetLength;
+
+    // constants for transaction 'reset'
+    val UnsignedLong ResetPinLowLength = ${ResetPinLowLength};
+    val UnsignedLong ResetPinHighLength = ${ResetPinHighLength};
+    val UnsignedLong ResetTALength = ResetPinLowLength+ResetPinHighLength;
+
+    // constants for transaction 'write'
+    val UnsignedLong WriteInDataLength = ${WriteInDataLength};
+    val UnsignedLong WriteTDISetupLength = 11+AddressLength+12;
+    val UnsignedLong WriteTDIResetLength = ${WriteTDIResetLength};
+    val UnsignedLong WriteTALength = WriteTDISetupLength+WriteInDataLength+WriteTDIResetLength;
+
+    val UnsignedLong WriteVarTALength = WriteTDISetupLength+WriteTDIResetLength;
+
+
+
+    // state mapping, optional. This mapping is the default mapping which will be used when no mapping is specified
+//    mapping = drv [state0 = "0", state1 = "1"],
+//              rcv [state0 = "L", state1 = "H", capture = "C", ignore = "X"];
+
+    // signal roles
+    signalRole TCK {
+        idleSequence = "T";
+    }
+    signalRole TDI {
+        idleSequence = "0";
+//            mapping = drv [state0 = "0", state1 = "1"],
+//              rcv [state0 = "H", state1 = "L", capture = "C", ignore = "X"];
+
+    }
+    signalRole TMS {
+        idleSequence = "0";
+      }
+
+    signalRole TDO {
+        idleSequence = "X";
+//            mapping = drv [state0 = "1", state1 = "1"],
+//              rcv [state0 = "H", state1 = "L", capture = "C", ignore = "X"];
+
+    }
+    signalRole TRST {
+        idleSequence = "1";
+
+
+    }
+
+    // signal role groups
+    group TDGroup {
+        sliceDepth = 1;
+//        mapping = drv [state0 = "1", state1 = "1"],
+//                  rcv [state0 = "H", state1 = "L", capture = "C", ignore = "X"];
+        signalRoles = TDI, TDO;
+
+
+
+    }
+
+
+    transaction write (UnsignedLong IN Address, UnsignedLong IN Data)    {
+
+//    mapping = drv [state0 = "0", state1 = "1"],
+//              rcv [state0 = "H", state1 = "L", capture = "C", ignore = "X"];
+
+
+        define TCK {
+            field drive Clk {};
+
+            Clk = repeat("T", WriteTALength);
+            // Clk += repeat("T", 5); // not yet working
+
+        }
+
+        define TDI {
+            field drive Reset {};
+            Reset = repeat(<0b0> , 6);
+
+            field drive Shift_IR {
+
+            };
+
+
+            Shift_IR = repeat(<0b0>, 5);
+
+            field drive IR_Scan {
+//             mapping = drv [state0 = "1", state1 = "0"]; //,
+
+            };
+            IR_Scan = Address[AddressLength-1..0];
+
+            field drive Exit_IR {};
+            Exit_IR = repeat(<0b0>, 4);
+
+            field drive Idle1 {};
+            Idle1 = repeat(<0b0>, 5);
+
+            field drive Shift_DR {};
+            Shift_DR = repeat(<0b0>, 3);
+
+            field drive DR_Scan {};
+            DR_Scan = Data[WriteInDataLength-1..0];
+
+            field drive Exit_DR {};
+            Exit_DR = repeat(<0b0>, 4);
+
+            field drive Idle2 {};
+            Idle2 = repeat(<0b0>, 4);
+
+        }
+
+        define TDO {
+            field receive Idle {};
+
+            // expressionType SCS
+            Idle = repeat("X", WriteTALength);
+        }
+
+        define TMS {
+            field drive Reset {};
+            // expressionType BITS
+            Reset = repeat(<0b1>, 6);
+
+            field drive Shift_IR {};
+            Shift_IR = <0b01100>;
+
+            field drive IR_Scan {};
+            IR_Scan = repeat(<0b0>, AddressLength-1)+<0b1>;
+
+            field drive Exit_IR {};
+            Exit_IR = <0b1000>;
+
+            field drive Idle1 {};
+            Idle1 = repeat(<0b0>, 5);
+
+            field drive Shift_DR {};
+            Shift_DR = <0b100>;
+
+            field drive DR_Scan {};
+            DR_Scan = repeat(<0b0>, WriteInDataLength-1)+<0b1>;
+
+//           field drive DR_Scan {};
+//            DR_Scan = repeat(<0b0>, WriteInDataLength-1);
+//           field drive test {};
+//            test = ~(<0b0>^<0b1>^<0b0>^(Address[3])^(Address[2])^(Address[1])^(Address[0])^(Data[4])^(Data[3])^(Data[2])^(Data[1])^(Data[0]));
+
+
+            field drive Exit_DR {};
+            Exit_DR = <0b1000>;
+
+            field drive Idle2 {};
+            Idle2 = <0b1111>;
+        }
+
+        define TRST {
+            field drive Idle {};
+
+            // expressionType BITS
+            Idle = repeat(<0b1>, WriteTALength);
+        }
+
+    // TCK.Clk += repeat("T", 5); // allowed, but not having any effect so far
+
+    }
+
+    transaction write_var (UnsignedLong IN Address, BitSequence IN Data, UnsignedLong IN dataLength)    {
+        define TCK {
+            field drive Clk {};
+
+            Clk = repeat("T", WriteVarTALength + dataLength);
+        }
+
+        define TDI {
+            field drive Reset {};
+            Reset = repeat(<0b0>, 6);
+
+            field drive Shift_IR {};
+            Shift_IR = repeat(<0b0>, 5);
+
+            field drive IR_Scan {};
+            IR_Scan = Address[AddressLength-1..0];
+
+            field drive Exit_IR {};
+            Exit_IR = repeat(<0b0>, 4);
+
+            field drive Idle1 {};
+            Idle1 = repeat(<0b0>, 5);
+
+            field drive Shift_DR {};
+            Shift_DR = repeat(<0b0>, 3);
+
+            field drive DR_Scan {};
+            DR_Scan = Data[0..dataLength-1];
+
+            field drive Exit_DR {};
+            Exit_DR = repeat(<0b0>, 4);
+
+            field drive Idle2 {};
+            Idle2 = repeat(<0b0>, 4);
+
+        }
+
+        define TDO {
+            field receive Idle {};
+
+            Idle = repeat("X", WriteVarTALength + dataLength);
+        }
+
+        define TMS {
+            field drive Reset {};
+            Reset = repeat(<0b1>, 6);
+
+            field drive Shift_IR {};
+            Shift_IR = <0b01100>;
+
+            field drive IR_Scan {};
+            IR_Scan = repeat(<0b0>, AddressLength-1)+<0b1>;
+
+            field drive Exit_IR {};
+            Exit_IR = <0b1000>;
+
+            field drive Idle1 {};
+            Idle1 = repeat(<0b0>, 5);
+
+            field drive Shift_DR {};
+            Shift_DR = <0b100>;
+
+            field drive DR_Scan {};
+            DR_Scan = repeat(<0b0>, dataLength-1)+<0b1>;
+
+            field drive Exit_DR {};
+            Exit_DR = <0b1000>;
+
+            field drive Idle2 {};
+            Idle2 = <0b1111>;
+        }
+
+        define TRST {
+            field drive Idle {};
+
+            Idle = repeat(<0b1>, WriteVarTALength + dataLength);
+        }
+    }
+
+    transaction test_grp (UnsignedLong IN Address, BitSequence IN Data, UnsignedLong IN data_len)    {
+
+    //mapping = drv [state0 = "0", state1 = "1"],
+    //          rcv [state0 = "L", state1 = "H", capture = "C", ignore = "X"];
+
+
+        define TCK {
+            field drive Clk {};
+            Clk = repeat("T", (AddressLength + 2 + data_len + data_len));
+        }
+
+        define TDGroup {
+
+
+            field drive IR_Scan {};
+            IR_Scan = Address[AddressLength-1..0] + Address[AddressLength-1..0];
+
+            field drive Exit_IR {};
+            Exit_IR = repeat(<0b0>, 4);
+
+            field drive DR_Scan {};
+            DR_Scan = Data[0..data_len-1] + repeat(<0b0>, data_len);
+
+            field receive Exit_DR {};
+
+            Exit_DR = Data[0..data_len-1] + repeat(<0b0>, data_len);
+        }
+
+        define TMS {
+            field drive Reset {};
+            Reset = repeat(<0b0>, (AddressLength + 2 + data_len + data_len));
+        }
+
+        define TRST {
+            field drive Idle {};
+            Idle = repeat(<0b1>, (AddressLength + 2 + data_len + data_len));
+        }
+    }
+
+
+
+    transaction read (UnsignedLong IN Address, UnsignedLong IN Data)
+                     masks(UnsignedLong Data_mask)
+    {
+        define TCK {
+            field drive Clk {};
+
+            Clk = repeat("T", ReadTALength);
+        }
+
+        define TDI {
+            field drive Reset {};
+            Reset = repeat(<0b0>, 6);
+
+            field drive Shift_IR {};
+            Shift_IR = repeat(<0b0>, 5);
+
+            field drive IR_Scan {};
+            IR_Scan = Address[AddressLength-1..0];
+
+            field drive Exit_IR {};
+            Exit_IR = repeat(<0b0>, 4);
+
+            field drive Idle {};
+            Idle = repeat(<0b0>, 8+ReadOutDataLength+8);
+        }
+
+        define TDO {
+            field receive Idle {};
+            Idle = repeat("X", ReadTDOSetupLength);
+
+            field receive Shift_DR {};
+            @Properties(mask = Data_mask[31..0])
+            //@Properties(mask = 0xAAAAAAAA[31..0])
+            Shift_DR = Data[ReadOutDataLength-1..0];
+
+            field receive Reset {};
+            Reset = repeat("X", ReadTDOResetLength);
+
+        }
+
+        define TMS {
+            field drive Reset {};
+            Reset = repeat(<0b1>, 6);
+
+            field drive Shift_IR {};
+            Shift_IR = <0b01100>;
+
+            field drive IR_Scan {};
+            IR_Scan = repeat(<0b0>, AddressLength-1)+<0b1>;
+
+            field drive Exit_IR {};
+            Exit_IR = <0b1000>;
+
+            field drive Idle1 {};
+            Idle1 = repeat(<0b0>, 5);
+
+            field drive Shift_DR {};
+            Shift_DR = <0b100>;
+
+            field drive DR_Scan {};
+            DR_Scan = repeat(<0b0>, ReadOutDataLength-1)+<0b1>;
+
+            field drive Exit_DR {};
+            Exit_DR = <0b1000>;
+
+            field drive Idle2 {};
+            Idle2 = <0b1111>;
+        }
+
+        define TRST {
+            field drive Idle {};
+
+            Idle = repeat(<0b1>, ReadTALength);
+        }
+    }
+
+    transaction read_var (UnsignedLong IN Address, BitSequence IN Data, UnsignedLong IN dataLength)
+    masks(BitSequence Data_mask)
+    {
+        define TCK {
+            field drive Clk {};
+
+            // expression type 'SCS'
+            Clk = repeat("T", ReadVarTALength + dataLength);
+        }
+
+        define TDI {
+            field drive Reset {};
+            // expression type BITS
+            Reset = repeat(<0b0>, 6);
+
+            field drive Shift_IR {};
+            Shift_IR = repeat(<0b0>, 5);
+
+            field drive IR_Scan {};
+            IR_Scan = Address[AddressLength-1..0];
+
+            field drive Exit_IR {};
+            Exit_IR = repeat(<0b0>, 4);
+
+            field drive Idle {};
+            Idle = repeat(<0b0>, 8+dataLength+8);
+        }
+
+        define TDO {
+            field receive Idle {};
+            Idle = repeat("X", ReadTDOSetupLength);
+
+            field receive Shift_DR {};
+            @Properties(mask = Data_mask[0..dataLength-1])
+            Shift_DR = Data[0..dataLength-1];
+
+            field receive Reset {};
+            Reset = repeat("X", ReadTDOResetLength);
+
+        }
+
+        define TMS {
+            field drive Reset {};
+            Reset = repeat(<0b1>, 6);
+
+            field drive Shift_IR {};
+            Shift_IR = <0b01100>;
+
+            field drive IR_Scan {};
+            IR_Scan = repeat(<0b0>, AddressLength-1)+<0b1>;
+
+            field drive Exit_IR {};
+            Exit_IR = <0b1000>;
+
+            field drive Idle1 {};
+            Idle1 = repeat(<0b0>, 5);
+
+            field drive Shift_DR {};
+            Shift_DR = <0b100>;
+
+            field drive DR_Scan {};
+            DR_Scan = repeat(<0b0>, dataLength-1)+<0b1>;
+
+            field drive Exit_DR {};
+            Exit_DR = <0b1000>;
+
+            field drive Idle2 {};
+            Idle2 = <0b1111>;
+        }
+
+        define TRST {
+            field drive Idle {};
+
+            Idle = repeat(<0b1>, ReadVarTALength + dataLength);
+        }
+    }
+
+    transaction reset ()
+    {
+        define TCK {
+            field drive Clk;
+
+            // expression type 'SCS'
+            Clk = repeat("T", ResetTALength);
+        }
+
+        define TDI {
+            field drive Idle {};
+
+            // expression type 'BITS'
+            Idle = repeat(<0b0>, ResetTALength);
+        }
+
+        define TDO {
+            field receive Idle;
+
+            // expression type 'SCS'
+            Idle = repeat("X", ResetTALength);
+        }
+
+        define TMS {
+            field drive Idle;
+
+            // expression type 'BITS'
+            Idle = repeat(<0b0>, ResetTALength);
+        }
+
+        define TRST {
+            field drive Reset;
+
+            // expression type 'BITS'
+            Reset = repeat(<0b0>, ResetPinLowLength)+repeat(<0b1>, ResetPinHighLength);
+        }
+    }
+
+    transaction nop ()    {
+        // signal role data
+        define TCK {
+            field drive Clk;
+            // general remark: No state mapping in the field definitions
+
+            // expression type 'SCS'
+            Clk = repeat("T", NopTALength);
+        }
+
+        define TDI {
+            field drive Idle {};
+
+            // expression type 'BITS'
+            Idle = repeat(<0b0>, NopTALength);
+        }
+
+        define TDO {
+            field receive Idle;
+
+            // expression type 'SCS'
+            Idle = repeat("X", NopTALength);
+        }
+
+        define TMS {
+            field drive Idle;
+
+            // expression type 'BITS'
+            Idle = repeat(<0b0>, NopTALength);
+        }
+
+        define TRST {
+            field drive Idle;
+
+            // expression type 'BITS'
+            Idle = repeat(<0b1>, NopTALength);
+        }
+    }
+
+
+
+}
