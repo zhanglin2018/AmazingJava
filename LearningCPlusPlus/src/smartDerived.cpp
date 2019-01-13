@@ -16,7 +16,6 @@ using namespace std;
  *
  */
 
-
 void testDerivedPtr1()
 {
   boost::shared_ptr<Base> base(new Base());
@@ -52,12 +51,27 @@ void testDerivedPtr3()
   assert(base.use_count() == 1);
 }
 
+void testDerivedPtr5()
+{
+  boost::shared_ptr<Base> base(new Derived());
+  base->testBase1();
+  base->testPublicFunc();
+  assert(base.use_count() == 1);
+
+  cout << "\n" << endl;
+  boost::weak_ptr<Base> base1(base);
+  assert(base1.use_count() == 1);
+  base1.lock()->testBase1();
+  base1.lock()->testPublicFunc();
+}
+
 int main(int argc, char **argv)
 {
 //  testDerivedPtr1();
 //  testDerivedPtr2();
 //  testDerivedPtr3();
-  testDerivedPtr4();
+//  testDerivedPtr4();
+  testDerivedPtr5();
   return 0;
 }
 
