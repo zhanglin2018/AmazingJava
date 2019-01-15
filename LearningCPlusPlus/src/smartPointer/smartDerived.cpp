@@ -65,13 +65,30 @@ void testDerivedPtr5()
   base1.lock()->testPublicFunc();
 }
 
-int main(int argc, char **argv)
+int mainSmartDerived(int argc, char **argv)
 {
 //  testDerivedPtr1();
 //  testDerivedPtr2();
 //  testDerivedPtr3();
 //  testDerivedPtr4();
   testDerivedPtr5();
+
+
+  int array[10];
+
+  for (int i=0; i<10; i++){
+    array[i] = i;
+  }
+
+  for (int i=0; i<10; i++){
+    cout << array[i] << endl;
+  }
+
+//  char *str = "abcd";
+//  str[10] = 'A';
+//
+//  cout << str << endl;
+
   return 0;
 }
 
