@@ -78,7 +78,7 @@ void testSharedPtr3()
 
 void testSharedPtr4()
 {
-  boost::shared_ptr<Simple> memory = boost::make_shared<Simple>(100);
+  boost::shared_ptr<Simple> memory(new Simple(10));
 
     if (memory.get()) {
       memory->printSomething();

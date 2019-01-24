@@ -111,7 +111,7 @@ void testWeakPtr4()
   assert(sp.use_count() == 0);
 
   assert(wp.expired());
-  assert(wp.lock() == nullptr);
+  assert(wp.lock() == NULL);
 }
 
 int mainWeak(int argc, char **argv)

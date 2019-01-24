@@ -32,7 +32,7 @@ void vectorInitialization()
   }
 
   for (int i : vec) {
-      cout << "value of v = " << i << endl;
+    cout << "value of v = " << i << endl;
   }
 }
 
@@ -55,10 +55,38 @@ void vectorSize()
       << vec.capacity() << std::endl;
 }
 
-int main()
+void vectorInitialization1()
+{
+
+  vector<int> vec1;
+  vector<int> vec2(vec1);
+  vector<int> vec3(vec1.begin(), vec1.end());
+  vector<int> vec4(10);
+  vector<int> vec5(10, 4);
+  vec1.push_back(100);
+  cout << vec1[0] << endl;
+  vec1.insert(vec1.end(), 5, 3);
+  vec1.pop_back();
+  vec1.erase(vec1.begin(), vec1.begin() + 2);
+  vector<int>::iterator iter = vec1.begin();
+  vector<int>::const_iterator c_iter = vec1.begin();
+  vec1.clear();
+  int length = vec1.size();
+  for (int i = 0; i < length; i++) {
+    cout << vec1[i];
+  }
+  cout << endl << endl;
+  vector<int>::iterator iter1 = vec1.begin();
+  for (; iter1 != vec1.end(); iter1++) {
+    cout << *iter;
+  }
+}
+
+int mainVector()
 {
   vectorInitialization();
   vectorSize();
+  vectorInitialization1();
   return 0;
 }
 

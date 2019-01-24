@@ -1,1 +1,1 @@
-src/container/vectorLearn.o: ../src/container/vectorLearn.cpp
+src/container/vectorLearn.d: ../src/container/vectorLearn.cpp

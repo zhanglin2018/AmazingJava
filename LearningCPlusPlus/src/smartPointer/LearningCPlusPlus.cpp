@@ -104,7 +104,7 @@ void testSharedPtr()
   cout << person3->getName() << " " << person3->getSex() << endl;
 
 
-  boost::shared_ptr<Person> person4 = boost::make_shared<Person>("jiafu", "man");
+  boost::shared_ptr<Person> person4(new Person("zhanglin", "man"));
   cout << person4->getName() << " " << person4->getSex() << " "
       << person4.use_count() << endl;
 

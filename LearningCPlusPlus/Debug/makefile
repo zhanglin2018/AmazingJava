@@ -8,6 +8,7 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include src/threadDemo/subdir.mk
 -include src/smartPointer/subdir.mk
 -include src/container/subdir.mk
 -include subdir.mk
@@ -55,5 +56,6 @@ clean:
 	-@echo ' '
 
 .PHONY: all clean dependents
+.SECONDARY:
 
 -include ../makefile.targets
