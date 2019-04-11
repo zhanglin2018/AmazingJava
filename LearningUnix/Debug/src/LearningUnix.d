@@ -1,1 +1,1 @@
-src/LearningUnix.d: ../src/LearningUnix.cpp
+src/LearningUnix.o: ../src/LearningUnix.cpp

@@ -82,6 +82,22 @@ void vectorInitialization1()
   }
 }
 
+void stringVectorToString(vector<string> & val)
+{
+//add assignment event
+  string valStr = "";
+  vector<string>::const_iterator iter = val.begin();
+  for (; iter < val.end(); ++iter)
+  {
+    valStr += *iter;
+    valStr += ",";
+  }
+  int lastSign = valStr.find_last_of(',');
+  string subStr = valStr.substr(0, lastSign);
+}
+
+
+
 int mainVector()
 {
   vectorInitialization();

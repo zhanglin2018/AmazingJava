@@ -1,0 +1,379 @@
+ConfigurationChangedEventType with 3 attributes received
+=> received
+=>Attribute type: 0
+***
+
+=> received
+=>Attribute type: 0
+***
+
+=>TimeStampAttrType received
+=>Attribute type: 23
+1549963643s 338249us
+
+1 pins / 24 sites:
+   0: PAD_D           (    )    D     : 30701 30702 30703 30704 30705 30706 30707 30708 30709 30710 30711 30712 30713 30714 30715 30716 30301 30302 30303 30304 30305 30306 30307 30308
+
+1 pin_groups:
+   0: all_D (0 pins):
+
+
+ManualExecutionEventType with 2 attributes received
+=>ManualExecutionStateAttrType received
+=>Attribute type: 58
+Manual
+
+=>TimeStampAttrType received
+=>Attribute type: 23
+1550053684s 908771us
+
+TestSuiteStartEventType with 8 attributes received
+=>TestSuiteNameAttrType received
+=>Attribute type: 11
+Lab1_VFIM_Resistor
+
+=>SiteSetAttrType received
+=>Attribute type: 9
+Sites: 1
+
+=>BypassStateAttrType received
+=>Attribute type: 57
+Execute
+
+=>OutputOnPassAttrType received
+=>Attribute type: 63
+En
+
+=>OutputOnFailAttrType received
+=>Attribute type: 64
+En
+
+=>PerPinOutputOnPassAttrType received
+=>Attribute type: 59
+En
+
+=>PerPinOutputOnFailAttrType received
+=>Attribute type: 60
+En
+
+=>TimeStampAttrType received
+=>Attribute type: 23
+1550053684s 909245us
+
+TestFunctionStartEventType with 8 attributes received
+=>TestSuiteNameAttrType received
+=>Attribute type: 11
+Lab1_VFIM_Resistor
+
+=>SiteIdAttrType received
+=>Attribute type: 10
+Site: 1
+
+=>TestFunctionTypeAttrType received
+=>Attribute type: 19
+type = testmethodutm.pt_sequencer
+
+=>TestFunctionParametersAttrType received
+=>Attribute type: 20
+type = 
+
+=>LevelsAttrType received
+=>Attribute type: 25
+ls=1 ds=1
+
+=>TimingsAttrType received
+=>Attribute type: 24
+ws=1 ts=1
+
+=>LabelAttrType received
+=>Attribute type: 26
+
+
+=>TimeStampAttrType received
+=>Attribute type: 23
+1550053684s 921558us
+
+ActionEventType with 3 attributes received
+=>TagAttrType received
+=>Attribute type: 46
+Tag name : start_timer
+Tag value: zhanglin
+
+=>TagAttrType received
+=>Attribute type: 46
+Tag name : timer_annotation
+Tag value: test timer start
+
+=>TimeStampAttrType received
+=>Attribute type: 23
+1550053685s 102097us
+
+ActionEventType with 3 attributes received
+=>TagAttrType received
+=>Attribute type: 46
+Tag name : stop_timer
+Tag value: hanjiaojiao
+
+=>TagAttrType received
+=>Attribute type: 46
+Tag name : timer_annotation
+Tag value: test timer end
+
+=>TimeStampAttrType received
+=>Attribute type: 23
+1550053685s 102115us
+
+TestEventType with 9 attributes received
+=>TestNameAttrType received
+=>Attribute type: 30
+parametersTest_double
+
+=>TestSuiteNameAttrType received
+=>Attribute type: 11
+Lab1_VFIM_Resistor
+
+=>SiteIdAttrType received
+=>Attribute type: 10
+Site: 1
+
+=>ParametricOrFunctionalTestAttrType received
+=>Attribute type: 62
+Test Type  = 2 (TEST_TYPE_PARAMETRIC)
+
+=>TestDescriptionAttrType received
+=>Attribute type: 61
+
+
+=>TestIdAttrType received
+=>Attribute type: 22
+Id = 0
+
+=>PassRangeAttrType received
+=>Attribute type: 31
+0.000000000 < X < 0.000000000 []
+
+=>ValueResultAttrType received
+=>Attribute type: 13
+Result = 26.550000A ""
+
+=>TimeStampAttrType received
+=>Attribute type: 23
+1550053685s 102194us
+
+TestEventType with 12 attributes received
+=>TestNameAttrType received
+=>Attribute type: 30
+parametersTest_vectorDouble
+
+=>TestSuiteNameAttrType received
+=>Attribute type: 11
+Lab1_VFIM_Resistor
+
+=>SiteIdAttrType received
+=>Attribute type: 10
+Site: 1
+
+=>ParametricOrFunctionalTestAttrType received
+=>Attribute type: 62
+Test Type  = 2 (TEST_TYPE_PARAMETRIC)
+
+=>TestDescriptionAttrType received
+=>Attribute type: 61
+
+
+=>TestIdAttrType received
+=>Attribute type: 22
+Id = 0
+
+=>PassRangeAttrType received
+=>Attribute type: 31
+0.000000000 < X < 0.000000000 []
+
+=>ValueResultAttrType received
+=>Attribute type: 13
+Result = 26.550000V ""
+
+=>ValueResultAttrType received
+=>Attribute type: 13
+Result = 27.550000V ""
+
+=>ValueResultAttrType received
+=>Attribute type: 13
+Result = 28.550000V ""
+
+=>ValueResultAttrType received
+=>Attribute type: 13
+Result = 29.550000V ""
+
+=>TimeStampAttrType received
+=>Attribute type: 23
+1550053685s 102456us
+
+TestEventType with 9 attributes received
+=>TestNameAttrType received
+=>Attribute type: 30
+parametersTest_int
+
+=>TestSuiteNameAttrType received
+=>Attribute type: 11
+Lab1_VFIM_Resistor
+
+=>SiteIdAttrType received
+=>Attribute type: 10
+Site: 1
+
+=>ParametricOrFunctionalTestAttrType received
+=>Attribute type: 62
+Test Type  = 2 (TEST_TYPE_PARAMETRIC)
+
+=>TestDescriptionAttrType received
+=>Attribute type: 61
+
+
+=>TestIdAttrType received
+=>Attribute type: 22
+Id = 0
+
+=>PassRangeAttrType received
+=>Attribute type: 31
+0.000000000 < X < 0.000000000 []
+
+=>ValueResultAttrType received
+=>Attribute type: 13
+Result = 10.000000mA ""
+
+=>TimeStampAttrType received
+=>Attribute type: 23
+1550053685s 102637us
+
+TestEventType with 12 attributes received
+=>TestNameAttrType received
+=>Attribute type: 30
+parametersTest_vectorInt
+
+=>TestSuiteNameAttrType received
+=>Attribute type: 11
+Lab1_VFIM_Resistor
+
+=>SiteIdAttrType received
+=>Attribute type: 10
+Site: 1
+
+=>ParametricOrFunctionalTestAttrType received
+=>Attribute type: 62
+Test Type  = 2 (TEST_TYPE_PARAMETRIC)
+
+=>TestDescriptionAttrType received
+=>Attribute type: 61
+
+
+=>TestIdAttrType received
+=>Attribute type: 22
+Id = 0
+
+=>PassRangeAttrType received
+=>Attribute type: 31
+0.000000000 < X < 0.000000000 []
+
+=>ValueResultAttrType received
+=>Attribute type: 13
+Result = 26.000000mV ""
+
+=>ValueResultAttrType received
+=>Attribute type: 13
+Result = 27.000000mV ""
+
+=>ValueResultAttrType received
+=>Attribute type: 13
+Result = 28.000000mV ""
+
+=>ValueResultAttrType received
+=>Attribute type: 13
+Result = 29.000000mV ""
+
+=>TimeStampAttrType received
+=>Attribute type: 23
+1550053685s 102817us
+
+AssignmentEventType with 3 attributes received
+=>SiteIdAttrType received
+=>Attribute type: 10
+Site: 1
+
+=>NamedValueAttrType received
+=>Attribute type: 7
+variableNameString = "I am so tired!"
+
+=>TimeStampAttrType received
+=>Attribute type: 23
+1550053685s 102985us
+
+AssignmentEventType with 3 attributes received
+=>SiteIdAttrType received
+=>Attribute type: 10
+Site: 1
+
+=>NamedValueAttrType received
+=>Attribute type: 7
+variableNameInt = 100
+
+=>TimeStampAttrType received
+=>Attribute type: 23
+1550053685s 103245us
+
+AssignmentEventType with 3 attributes received
+=>SiteIdAttrType received
+=>Attribute type: 10
+Site: 1
+
+=>NamedValueAttrType received
+=>Attribute type: 7
+variableNameDouble = 10.550000
+
+=>TimeStampAttrType received
+=>Attribute type: 23
+1550053685s 103280us
+
+TestFunctionEndEventType with 4 attributes received
+=>TestSuiteNameAttrType received
+=>Attribute type: 11
+Lab1_VFIM_Resistor
+
+=>SiteIdAttrType received
+=>Attribute type: 10
+Site: 1
+
+=>PassFailResultAttrType received
+=>Attribute type: 12
+Result = PASS ""
+
+=>TimeStampAttrType received
+=>Attribute type: 23
+1550053685s 114765us
+
+TestSuiteEndEventType with 4 attributes received
+=>TestSuiteNameAttrType received
+=>Attribute type: 11
+Lab1_VFIM_Resistor
+
+=>SiteIdAttrType received
+=>Attribute type: 10
+Site: 1
+
+=>PassFailResultAttrType received
+=>Attribute type: 12
+Result = PASS ""
+
+=>TimeStampAttrType received
+=>Attribute type: 23
+1550053685s 116400us
+
+ManualExecutionEventType with 2 attributes received
+=>ManualExecutionStateAttrType received
+=>Attribute type: 58
+Auto
+
+=>TimeStampAttrType received
+=>Attribute type: 23
+1550053685s 116675us
+

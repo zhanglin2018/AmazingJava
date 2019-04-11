@@ -1,1 +1,1 @@
-src/threadDemo/threadLearn.d: ../src/threadDemo/threadLearn.cpp
+src/threadDemo/threadLearn.o: ../src/threadDemo/threadLearn.cpp

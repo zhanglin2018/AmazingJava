@@ -93,7 +93,7 @@ void bestSolution(int *array, int len)
   }
 }
 
-int main()
+int mainTest()
 {
   int array[8] = { 1290, 1293, 1307, 1297, 1283, 1302, 1322, 1340 };
   bestSolution(array, 8);

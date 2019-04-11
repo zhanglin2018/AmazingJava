@@ -1,1 +1,1 @@
-src/container/listLearn.d: ../src/container/listLearn.cpp
+src/container/listLearn.o: ../src/container/listLearn.cpp

@@ -21,15 +21,19 @@ static void myExit2(void){
 void testExit()
 {
   cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
+
   if (atexit(myExit1) != 0) {
     cout << "can't register myExit1" << endl;
   }
+
   if (atexit(myExit1) != 0) {
     cout << "can't register myExit1" << endl;
   }
+
   if (atexit(myExit2) != 0) {
     cout << "can't register myExit2" << endl;
   }
+
   cout << "main is done" << endl;
 }
 
@@ -40,11 +44,15 @@ void testParameters(int argc, char** argv)
   }
 }
 
-int main(int argc, char **argv)
+int mainExit(int argc, char** argv)
 {
   testExit();
 
   testParameters(argc, argv);
+
+  cout << getenv("HOME") << endl;
+  cout << getenv("PATH") << endl;
+
 
   return 0;
 }

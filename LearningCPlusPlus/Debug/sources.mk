@@ -23,7 +23,8 @@ C_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
-src/threadDemo \
-src/smartPointer \
 src/container \
+src/namePipe \
+src/smartPointer \
+src/threadDemo \
 

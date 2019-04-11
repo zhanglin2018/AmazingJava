@@ -10,6 +10,7 @@ RM := rm -rf
 -include sources.mk
 -include src/threadDemo/subdir.mk
 -include src/smartPointer/subdir.mk
+-include src/namePipe/subdir.mk
 -include src/container/subdir.mk
 -include subdir.mk
 -include objects.mk
@@ -56,6 +57,5 @@ clean:
 	-@echo ' '
 
 .PHONY: all clean dependents
-.SECONDARY:
 
 -include ../makefile.targets

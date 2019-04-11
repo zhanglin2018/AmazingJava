@@ -1,0 +1,1 @@
+extern "C" :  Tell the compiler to compile in C code.

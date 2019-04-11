@@ -1,0 +1,13 @@
+ConfigurationChangedEventType with 3 attributes received
+        => received
+        =>Attribute type: 0
+        ***
+
+        => received
+        =>Attribute type: 0
+        ***
+
+        =>TimeStampAttrType received
+        =>Attribute type: 23
+        1550200113s 947813us
+

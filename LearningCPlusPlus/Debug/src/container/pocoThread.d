@@ -1,1 +1,1 @@
-src/container/pocoThread.d: ../src/container/pocoThread.cpp
+src/container/pocoThread.o: ../src/container/pocoThread.cpp
