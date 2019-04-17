@@ -9,4 +9,4 @@ process0 : the first process created in Linux boot, which evolves into process s
 process1 : init process, created by process 0 to complete the initialization of the system.
 
 
-
+practice7: pipe
