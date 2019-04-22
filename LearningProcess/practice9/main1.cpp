@@ -1,0 +1,8 @@
+/*
+  Shared memory allows two or more process to share a given storage area.
+  Data does not need to be copied between multiple processs.
+
+
+
+
+*/

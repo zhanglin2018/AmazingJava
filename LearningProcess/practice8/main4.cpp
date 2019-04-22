@@ -28,7 +28,11 @@ void handler(int signalNum)
 
 int main()
 {
-        
+   
+     cout << sizeof(int) << endl;
+    cout << sizeof(int *) << endl;
+ 
+       
     if (signal(SIGINT, handler) == SIG_ERR)
     {
         perror("signal error");

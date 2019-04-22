@@ -43,6 +43,9 @@ int main()
         perror("FIFO open error");
         _exit(-1);
     }
+    
+    cout << sizeof(int) << endl;
+    cout << sizeof(int *) << endl;
 
     cout << "FIFO O_WRONLY open success" << endl;
 }
